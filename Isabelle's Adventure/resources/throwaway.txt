@@ -1,0 +1,123 @@
+
+KeyCall PROC USES ebx
+
+CheckRight:
+      mov eax, KeyPress
+      cmp eax, VK_RIGHT       ;;CHECK IF KEYPRESS IS RIGHT ARROW
+      jne CheckLeft           ;;MOVE TO LEFT CHECK IF NOT
+    inc keyX                ;;IF SO, MOVE RIGHT BY 3 PIXELS
+    inc keyX
+    inc keyX
+    mov eax, keyX           ;;ALLOC EAX
+CheckLeft:
+    mov eax, KeyPress
+    cmp eax, VK_LEFT        ;;REPEAT FOR LEFT ARROW CHECK
+    jne CheckUp
+    dec keyX                ;;DECREMENT KEYX TO MOVE LEFT IF BRANCH NOT TAKEN
+    dec keyX
+    dec keyX
+    mov eax, keyX
+CheckUp:
+    mov eax, KeyPress
+    cmp eax, VK_UP          ;;CHECK UP ARROW
+    jne CheckDown
+    dec keyY
+    dec keyY                ;;DECREMENT Y TO MOVE SPRITE TOWARDS TOP OF SCREEN
+    dec keyY
+    mov ebx, keyY
+CheckDown:
+    mov eax, KeyPress
+    cmp eax, VK_DOWN        ;;CHECK DOWN ARROW
+    jne DrawIt
+    inc keyY
+    inc keyY                ;;INCREASE Y TO MOVE SPRITE DOWNWARD
+    inc keyY
+    mov ebx, keyY
+DrawIt:
+    invoke BasicBlit, OFFSET isabelle_facing_left, keyX, keyY        ;;DRAW SPRITE AT CURRENT POSITION
+
+    ret
+KeyCall ENDP
+
+
+
+DisplayCount:
+      mov eax, count
+      push eax
+      push offset fmtStrCount
+      push offset outStrCount
+      call wsprintf
+      add esp, 12
+      invoke DrawStr, offset outStrCount, 70, 235, 000h
+DebugStatus:
+      mov eax, hive2Status
+      push eax
+      push offset fmtStrDebug
+      push offset outStrDebug
+      call wsprintf
+      add esp, 12
+      invoke DrawStr, offset outStrDebug, 70, 245, 00h  
+
+
+
+MouseCall PROC USES ebx
+      mov ebx, OFFSET MouseStatus                 ;;INITIALIZE EBX W/ MOUSE STATUS
+      mov eax, (MouseInfo PTR [ebx]).horiz        
+    mov mouseX, eax                             ;;GET X. POS OF MOUSE AND ALLOC. MOUSEX
+    mov eax, (MouseInfo PTR [ebx]).vert
+    mov mouseY, eax                             ;;REPEAT FOR Y. POS
+
+
+
+
+
+
+
+
+
+
+;;Helper to draw heart
+
+DrawHearts PROC 
+      invoke DrawHeart
+      invoke UpdateHeart
+      cmp heartY, 200
+      jge Gravity1
+      jmp Draw1
+Gravity1:
+      inc heartY
+      inc heartY
+      inc heartY
+      inc heartY
+      inc heartY
+      jmp Check2
+Draw1:
+      inc heartY
+      inc heartY
+      inc heartY
+      jmp Return
+Check2:
+      cmp heartY, 200
+      jg Gravity2
+      jmp Draw2
+Gravity2:
+      inc heartY
+      inc heartY
+      inc heartY
+      inc heartY
+      inc heartY
+      jmp Return
+Draw2:
+      inc heartY
+      inc heartY
+      inc heartY
+      jmp Return
+Return:
+      
+      ret
+DrawHearts ENDP
+
+;;********************************************************************************
+    invoke BasicBlit, OFFSET pika, mouseX, mouseY       ;;DRAW SPRITE AT POSITION
+    ret
+MouseCall ENDP
